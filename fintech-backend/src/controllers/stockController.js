@@ -1,6 +1,7 @@
-const Stock = require('../models/Stock');
+const Stock = require('../models/stock');
 
-
+// @desc    Add a new master stock
+// @route   POST /api/stocks
 const createStock = async (req, res) => {
     try {
         const { ticker, companyName, sector } = req.body;
@@ -19,7 +20,8 @@ const createStock = async (req, res) => {
     }
 };
 
-
+// @desc    Get all master stocks
+// @route   GET /api/stocks
 const getAllStocks = async (req, res) => {
     try {
         const stocks = await Stock.find();
