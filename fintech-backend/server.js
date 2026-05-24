@@ -6,6 +6,7 @@ const stockRoutes = require('./src/routes/stockRoutes');
 const mutualFundRoutes = require('./src/routes/mutualFundRoutes');
 const goalRoutes = require('./src/routes/goalRoutes');
 const authRoutes = require('./src/routes/authRoutes');
+const portfolioRoutes = require('./src/routes/portfolioRoutes');
 
 const app = express();
 
@@ -22,6 +23,7 @@ app.use('/api/stocks', stockRoutes);
 app.use('/api/funds', mutualFundRoutes);
 app.use('/api/goals',goalRoutes);
 app.use('/api/auth', authRoutes);
+app.use('/api/portfolio',portfolioRoutes);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
