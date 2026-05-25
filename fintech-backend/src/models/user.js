@@ -32,13 +32,29 @@ const userSchema = new mongoose.Schema({
         enum: ['Pending', 'Verified', 'Rejected'], 
         default: 'Pending' 
     },
+    panNumber: { 
+        type: String, 
+        uppercase: true, 
+        trim: true 
+    },
+    bankName: { 
+        type: String, 
+        trim: true 
+    },
+    bankAccountNumber: { 
+        type: String, 
+        trim: true 
+    },
+    ifscCode: { 
+        type: String, 
+        uppercase: true, 
+        trim: true 
+    },
     riskTolerance: {
         type: String,
         enum: ['Conservative', 'Moderate', 'Aggressive'],
         default: 'Moderate'
     },
-    
-   
     baseCurrency: { 
         type: String, 
         default: 'INR' 

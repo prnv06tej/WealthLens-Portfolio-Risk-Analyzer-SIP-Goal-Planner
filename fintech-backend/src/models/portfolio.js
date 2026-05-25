@@ -6,6 +6,11 @@ const portfolioSchema = new mongoose.Schema({
         ref: 'User', 
         required: true 
     },
+    folioNumber: { 
+        type: String, // E.g., FOLIO-98765432
+        required: true, 
+        unique: true 
+    }, 
     
     investments: [{
         fundId: { 
@@ -13,10 +18,16 @@ const portfolioSchema = new mongoose.Schema({
             ref: 'MutualFund', 
             required: true 
         },
-        amountInvested: { 
-            type: Number, 
-            required: true 
-        }
+       accumulatedUnits: { 
+        type: Number, 
+        default: 0, 
+        required: true 
+       },
+       totalInvested: { 
+        type: Number, 
+        default: 0, 
+        required: true 
+       }
     }],
     
     aggregateRiskScore: { 

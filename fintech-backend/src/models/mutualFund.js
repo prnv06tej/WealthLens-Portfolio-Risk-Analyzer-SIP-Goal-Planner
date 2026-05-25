@@ -5,6 +5,11 @@ const mutualFundSchema = new mongoose.Schema({
         type: String, 
         required: true 
     },
+    isin: { 
+        type: String, //global identifier
+        required: true, 
+        unique: true 
+    },
     category: { 
         type: String, 
         enum: ['Large Cap', 'Mid Cap', 'Small Cap', 'Debt', 'Flexi Cap'] 
@@ -13,6 +18,13 @@ const mutualFundSchema = new mongoose.Schema({
         type: Number, 
         min: 1, 
         max: 100 
+    }, 
+    currentNAV: { 
+        type: Number, 
+        required: true 
+    },
+    navDate: { //lates AMFI updated date
+        type: String 
     }, 
     
     // Array of objects linking to the Stock model

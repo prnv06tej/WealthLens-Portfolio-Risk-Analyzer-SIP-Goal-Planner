@@ -20,8 +20,19 @@ const transactionSchema = new mongoose.Schema({
         type: Number, 
         required: true 
     },
-    // We don't need to manually add a "date" field because { timestamps: true } 
-    // automatically creates createdAt and updatedAt fields for us!
+    navAtTransaction: { 
+        type: Number, // Price on that day
+        required: true 
+    }, 
+    unitsAllocated: { 
+        type: Number, //no. of units purchased
+        required: true 
+    },
+    balanceUnits: { 
+        type: Number, //total units owned
+        required: true 
+    },
+    //date recorded via created at as timestamps True
 }, { timestamps: true });
 
 module.exports = mongoose.model('Transaction', transactionSchema);

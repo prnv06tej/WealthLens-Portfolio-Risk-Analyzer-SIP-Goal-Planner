@@ -2,11 +2,14 @@ require('dotenv').config();
 const express = require("express");
 const cors = require("cors");
 const connectDB = require("./src/config/db");
+const cron = require('node-cron');
+const { fetchAndUpdateNAVs } = require('./src/utils/amfiParser');
 const stockRoutes = require('./src/routes/stockRoutes');
 const mutualFundRoutes = require('./src/routes/mutualFundRoutes');
 const goalRoutes = require('./src/routes/goalRoutes');
 const authRoutes = require('./src/routes/authRoutes');
 const portfolioRoutes = require('./src/routes/portfolioRoutes');
+const userRoutes = require('./src/routes/userRoutes');
 
 const app = express();
 
@@ -24,6 +27,19 @@ app.use('/api/funds', mutualFundRoutes);
 app.use('/api/goals',goalRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/portfolio',portfolioRoutes);
+app.use('/api/profile',userRoutes);
+
+
+//Auto update at 11pm everyday
+cron.schedule('0 23 * * *', () => {
+    fetchAndUpdateNAVs();
+});
+
+//For manually performing update
+app.get('/api/admin/sync-amfi', async (req, res) => {
+    await fetchAndUpdateNAVs();
+    res.status(200).json({ message: "Manual sync triggered. Check server console." });
+});
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
