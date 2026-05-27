@@ -56,8 +56,46 @@ const compareFunds = async (req, res) => {
     }
 };
 
+const getPopularFunds = async (req, res) => {
+    try {
+        // Fetch only funds where isPopular is true
+        const popularFunds = await MutualFund.find({ isPopular: true });
+        
+        res.status(200).json({
+            count: popularFunds.length,
+            data: popularFunds
+        });
+    } catch (error) {
+        res.status(500).json({ error: 'Server Error', details: error.message });
+    }
+};
+
+const searchFunds = async (req, res) => {
+    try {
+        const searchQuery = req.query.q; 
+
+        if (!searchQuery) {
+            return res.status(400).json({ message: "Please provide a search term" });
+        }
+
+        
+        const searchResults = await MutualFund.find({ 
+            name: { $regex: searchQuery, $options: 'i' } 
+        }).limit(15); //preotects from crash
+
+        res.status(200).json({
+            count: searchResults.length,
+            data: searchResults
+        });
+    } catch (error) {
+        res.status(500).json({ error: 'Server Error', details: error.message });
+    }
+};
+
 module.exports={
     createFund,
     getAllFunds,
-    compareFunds
+    compareFunds,
+    getPopularFunds,
+    searchFunds
 }

@@ -26,6 +26,10 @@ const mutualFundSchema = new mongoose.Schema({
     navDate: { //lates AMFI updated date
         type: String 
     }, 
+    isPopular: { 
+        type: Boolean, 
+        default: false 
+    },
     
     // Array of objects linking to the Stock model
     holdings: [{
