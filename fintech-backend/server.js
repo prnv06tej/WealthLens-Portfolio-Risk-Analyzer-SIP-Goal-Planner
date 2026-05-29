@@ -10,6 +10,7 @@ const goalRoutes = require('./src/routes/goalRoutes');
 const authRoutes = require('./src/routes/authRoutes');
 const portfolioRoutes = require('./src/routes/portfolioRoutes');
 const userRoutes = require('./src/routes/userRoutes');
+const adminRoutes = require('./src/routes/adminRoutes');
 
 const app = express();
 
@@ -28,7 +29,7 @@ app.use('/api/goals',goalRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/portfolio',portfolioRoutes);
 app.use('/api/profile',userRoutes);
-
+app.use('/api/admin', adminRoutes);
 
 //Auto update at 11pm everyday
 cron.schedule('0 23 * * *', () => {

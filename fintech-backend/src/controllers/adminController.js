@@ -22,7 +22,9 @@ const ingestFundData = async (req, res) => {
             const stock = await Stock.findOneAndUpdate(
                 { companyName: item.companyName },
                 { ticker: item.ticker }, 
-                { upsert: true, new: true } // Creates it if it doesn't exist
+                { upsert: true,
+                  returnDocument: 'after'
+                 } // Creates it if it doesn't exist
             );
 
             processedHoldings.push({
