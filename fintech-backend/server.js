@@ -28,7 +28,7 @@ app.use('/api/funds', mutualFundRoutes);
 app.use('/api/goals',goalRoutes);
 app.use('/api/auth', authRoutes);
 app.use('/api/portfolio',portfolioRoutes);
-app.use('/api/profile',userRoutes);
+app.use('/api/users',userRoutes);
 app.use('/api/admin', adminRoutes);
 
 //Auto update at 11pm everyday

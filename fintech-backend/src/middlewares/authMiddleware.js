@@ -25,4 +25,12 @@ const protect = async (req, res, next) => {
     }
 };
 
-module.exports = { protect };
+const admin = (req, res, next) => {
+    if (req.user && req.user.role === 'admin') {
+        next(); // User is verified as an admin, proceed to the route controller
+    } else {
+        res.status(403).json({ error: 'Access Denied: Administrative Clearance Required.' });
+    }
+};
+
+module.exports = { protect,admin };

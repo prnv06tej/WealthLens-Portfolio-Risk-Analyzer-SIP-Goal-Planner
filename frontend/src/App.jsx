@@ -6,13 +6,25 @@ import ProfileSettings from './pages/profileSettings';
 import Discover from './pages/discover';
 import CompareHub from './pages/compareHub';
 import Dashboard from './pages/dashboard';
-import Landing from './pages/landingPage';
+import Landing from './pages/landingPage'; 
 import Layout from './components/Layout';
 import PublicLayout from './components/publicLayout';
+import AdminCockpit from './pages/adminCockpit';
 
+//  standard user gateway
 function ProtectedRoute({ children }) {
     const { user } = useAuth();
     return user ? children : <Navigate to="/login" />;
+}
+
+//  BRAND NEW: DECENTRALIZED ADMIN SECURITY BOUNCER
+function AdminRoute({ children }) {
+    const { user, loading } = useAuth();
+    
+    if (loading) return <div>Verifying credentials...</div>;
+    
+    // Check if the user is authenticated AND contains the absolute admin database string
+    return user && user.role === 'admin' ? children : <Navigate to="/dashboard" />;
 }
 
 export default function App() {
@@ -20,22 +32,31 @@ export default function App() {
         <AuthProvider>
             <Router>
                 <Routes>
-                    {/*  GROUP 1: PUBLIC ACCESSIBLE OUTSIDE OF SECURE SESSION */}
+                    
+                    {/* ZONE 1: PURELY PUBLIC */}
                     <Route element={<PublicLayout />}>
                         <Route path="/" element={<Landing />} />
                         <Route path="/discover" element={<Discover />} />
                         <Route path="/compare" element={<CompareHub />} />
                     </Route>
 
-                    {/* GROUP 2: INDEPENDENT AUTH GATEWAYS */}
+                    {/* ZONE 2: INDEPENDENT AUTH GATEWAYS */}
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
                     
-                    {/*  GROUP 3: PRIVATE SECURITY GATE RESIDENTIAL TERMINAL */}
+                    {/* ZONE 3: CLIENT PORTAL LAYOUT */}
                     <Route element={<ProtectedRoute><Layout /></ProtectedRoute>}>
                         <Route path="/dashboard" element={<Dashboard />} />
                         <Route path="/profile" element={<ProfileSettings />} />
                     </Route>
+
+                    {/*  ZONE 4: SERVER-VERIFIED ADMIN ACCESS NODE */}
+                    {/* Wrapped inside AdminRoute to instantly redirect malicious or standard users */}
+                    <Route path="/ops-control-panel" element={
+                        <AdminRoute>
+                            <AdminCockpit />
+                        </AdminRoute>
+                    } />
                     
                     {/* Catch-all Wildcard Route */}
                     <Route path="*" element={<Navigate to="/" />} />

@@ -1,60 +1,95 @@
 const axios = require('axios');
 const MutualFund = require('../models/mutualFund');
 
-const AMFI_URL = 'https://www.amfiindia.com/spages/NAVAll.txt';
+const AMFI_URL = 'https://portal.amfiindia.com/spages/NAVAll.txt';
 
 const fetchAndUpdateNAVs = async () => {
-    console.log('Starting Daily AMFI NAV Sync (Bulk Upsert)...');
+    console.log(' Launching Resilient Segmented AMFI Ingestion...');
     
     try {
         const response = await axios.get(AMFI_URL);
-        const lines = response.data.split('\n');
+        const lines = response.data.split(/\r?\n/);
         
-        // This array will hold all our database commands
-        const bulkOperations = [];
+        let batchOperations = [];
+        const CHUNK_SIZE = 1000; //  Protects socket payloads from choking
+        let processedCount = 0;
+        let writtenCount = 0;
+
+        //  CONTEXT TRACKER: Captures category headers as the loop moves down the file
+        let currentCategory = 'Equity Scheme - Multi Cap Fund'; 
 
         for (const line of lines) {
-            const parts = line.split(';');
+            const trimmedLine = line.trim();
+            if (!trimmedLine) continue;
 
-            
-            if (parts.length >= 6 && parts[1].trim() !== '') {
-                const currentIsin = parts[1].trim();
+            // Detect section headers to update the active context category
+            if (trimmedLine.includes('Schemes(')) {
+                currentCategory = trimmedLine;
+                continue;
+            }
+
+            const parts = trimmedLine.split(';');
+
+            // Process valid financial data rows
+            if (parts.length >= 6) {
+                const schemeCode = parts[0].trim();
+                const isinGrowth = parts[1].trim();
+                const isinReinvest = parts[2].trim();
                 const fundName = parts[3].trim();
                 const latestNAV = parseFloat(parts[4].trim());
                 const navDate = parts[5].trim();
 
-                
+                // Skip header metrics label lines smoothly
                 if (isNaN(latestNAV)) continue;
 
-                // Create an "Upsert" operation for MongoDB
-                bulkOperations.push({
+                // Isolate the true asset key code reference
+                let targetIsin = '';
+                if (isinGrowth && isinGrowth !== '-') {
+                    targetIsin = isinGrowth;
+                } else if (isinReinvest && isinReinvest !== '-') {
+                    targetIsin = isinReinvest;
+                }
+
+                if (!targetIsin) continue;
+
+                batchOperations.push({
                     updateOne: {
-                        filter: { isin: currentIsin },
+                        filter: { isin: targetIsin },
                         update: {
                             $set: {
+                                schemeCode: schemeCode,
                                 name: fundName,
+                                category: currentCategory, // Synchronizes structural category tags
                                 currentNAV: latestNAV,
                                 navDate: navDate
-                                
                             }
                         },
-                        upsert: true 
+                        upsert: true
                     }
                 });
+
+                processedCount++;
+
+                //  CHUNK ENFORCEMENT: Write to the database when the batch hits 1,000 items
+                if (batchOperations.length === CHUNK_SIZE) {
+                    await MutualFund.bulkWrite(batchOperations);
+                    writtenCount += batchOperations.length;
+                    console.log(` [Database Sync]: Synchronized ${writtenCount} / ${processedCount} records...`);
+                    batchOperations = []; // Flush buffer completely to free up heap memory
+                }
             }
         }
 
-        console.log(`Preparing to process ${bulkOperations.length} funds...`);
-
-        
-        if (bulkOperations.length > 0) {
-            await MutualFund.bulkWrite(bulkOperations);
+        // Commit any remaining items left in the buffer array
+        if (batchOperations.length > 0) {
+            await MutualFund.bulkWrite(batchOperations);
+            writtenCount += batchOperations.length;
         }
 
-        console.log(`AMFI Sync Complete! Your database is fully populated.`);
+        console.log(` [Ingest Complete]: Successfully integrated ${writtenCount} pristine fund items into MongoDB Atlas.`);
 
     } catch (error) {
-        console.error('AMFI Sync Failed:', error.message);
+        console.error(' AMFI Parser Operational Fault:', error.message);
     }
 };
 

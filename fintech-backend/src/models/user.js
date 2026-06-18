@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
+
     
     firstName: { 
         type: String,
@@ -26,6 +27,11 @@ const userSchema = new mongoose.Schema({
         select: false 
     }, 
     
+    role: { 
+        type: String, 
+        enum: ['user', 'admin'], 
+        default: 'user' 
+    },
     
     kycStatus: { 
         type: String, 
