@@ -9,6 +9,7 @@ const mutualFundRoutes = require('./src/routes/mutualFundRoutes');
 const goalRoutes = require('./src/routes/goalRoutes');
 const authRoutes = require('./src/routes/authRoutes');
 const portfolioRoutes = require('./src/routes/portfolioRoutes');
+const transactionRoutes = require('./src/routes/transactionRoutes');
 const userRoutes = require('./src/routes/userRoutes');
 const adminRoutes = require('./src/routes/adminRoutes');
 
@@ -27,9 +28,10 @@ app.use('/api/stocks', stockRoutes);
 app.use('/api/funds', mutualFundRoutes);
 app.use('/api/goals',goalRoutes);
 app.use('/api/auth', authRoutes);
-app.use('/api/portfolio',portfolioRoutes);
+app.use('/api/portfolio', portfolioRoutes);
 app.use('/api/users',userRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/transactions', transactionRoutes);
 
 //Auto update at 11pm everyday
 cron.schedule('0 23 * * *', () => {
