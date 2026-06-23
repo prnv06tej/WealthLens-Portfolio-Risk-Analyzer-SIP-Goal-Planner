@@ -7,7 +7,7 @@ import Discover from './pages/discover';
 import CompareHub from './pages/compareHub';
 import Dashboard from './pages/dashboard';
 import Landing from './pages/landingPage'; 
-import Layout from './components/Layout';
+import Layout from './components/layout';
 import PublicLayout from './components/publicLayout';
 import AdminCockpit from './pages/adminCockpit';
 
